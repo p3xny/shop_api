@@ -153,6 +153,7 @@ def register():
             db.session.add(user)
             db.session.commit()
             return jsonify(message='User created successfully.'), 201 # CREATED
+
     else:
         return jsonify(message='email is invalid')
 
