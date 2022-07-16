@@ -7,6 +7,7 @@ from flask_marshmallow import Marshmallow
 from marshmallow import Schema, fields
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 from flask_mail import Mail, Message
+import re
 
 
 app = Flask(__name__)
@@ -139,18 +140,21 @@ def register():
     email = request.form['email']
     test = User.query.filter_by(email=email).first()
 
-    if test:
-        return jsonify(message="That email already exists in our database."), 409 # CONFLICT
-    else:
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        password = request.form['password']
-        user = User(fisrt_name=first_name, last_name=last_name,email=email, password=password)
 
-        db.session.add(user)
-        db.session.commit()
-        return jsonify(message='User created successfully.'), 201 # CREATED
-        
+    if re.search('^\w+@(\w+\.)?\w+\.(com|org|net|edu|gov|info|io|pl)$', email, re.IGNORECASE):
+        if test:
+            return jsonify(message="That email already exists in our database."), 409 # CONFLICT
+        else:
+            first_name = request.form['first_name']
+            last_name = request.form['last_name']
+            password = request.form['password']
+            user = User(fisrt_name=first_name, last_name=last_name,email=email, password=password)
+
+            db.session.add(user)
+            db.session.commit()
+            return jsonify(message='User created successfully.'), 201 # CREATED
+    else:
+        return jsonify(message='email is invalid')
 
 @app.route('/login', methods=['POST'])
 def login():
